@@ -1,10 +1,14 @@
 package app;
 
+import service.BankService;
+import service.service.impl.Bankserviceimpl;
+
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("Welcome to ConsoleVault Banking");
+        BankService bankService = new Bankserviceimpl(); // object of bank service me assign krege bankserviceimp ka object.
         boolean running =true;
         while (running) {
             System.out.println("""
@@ -24,7 +28,7 @@ public class Main {
             System.out.println("CHOICE  " + choice);
 
             switch (choice){
-                case "1" -> openAccount(sc);
+                case "1" -> openAccount(sc,bankService);
                 case "2" -> deposit(sc);
                 case "3" -> withdraw(sc);
                 case "4" -> transfer(sc);
@@ -39,7 +43,7 @@ public class Main {
 
     }
 
-    private static void openAccount(Scanner sc) {
+    private static void openAccount(Scanner sc,BankService bankService) {
         System.out.println("Customer Name :");
         String name = sc.nextLine().trim();
         System.out.println("Customer Email :");
@@ -49,6 +53,7 @@ public class Main {
         System.out.println("Initial Deposit amount(optional,blank for 0 ");
         String initDepo = sc.nextLine().trim();
         Double initial = Double.valueOf(initDepo);
+        bankService.openAccount(name,email,accType);
     }
 
     private static void deposit(Scanner sc) {
