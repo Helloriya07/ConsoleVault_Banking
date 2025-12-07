@@ -1,6 +1,11 @@
 package repository;
 
 import domain.Account;
+/*
+created an repo of users account
+saving the data in repo
+implementaion of findAll so that it can return the account numbers of user to get the size.
+ */
 
 import java.util.ArrayList;
 import java.util.HashMap;

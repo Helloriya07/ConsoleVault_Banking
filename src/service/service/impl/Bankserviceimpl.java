@@ -4,7 +4,17 @@ import domain.Account;
 import repository.Accountrepository;
 import service.BankService;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+/*
+This class defines - creating object of accountrepo so that we can fetch the accountdetails of user.
+generated customerid
+openeing account of user
+generates account numbers of user
+saving the accountdata in the repo
+ */
 
 public class Bankserviceimpl implements BankService {
 
@@ -27,10 +37,24 @@ public class Bankserviceimpl implements BankService {
         return accountnNumber; // account number will be returned in string format.
     }
 
+    @Override
+    public List<Account> listAccount() {
+        return accountRepository.findAll().stream()
+                // findall will get u listofallaccounts from accountrepo convert it into stream.
+
+                .sorted(Comparator.comparing(Account::getAccountNumber))
+                // sort the account on the basis of accountNumber
+
+                .collect(Collectors.toList());
+                 //collecting the listofaccounts in list.
+    }
+
+
+
     // method to generate account numbers of customers
     private String getAccountnNumber() {
         int size = accountRepository.findAll().size()+1;
-        String accountnNumber = String.format("PUNB%6d",size);
+        String accountnNumber = String.format("PUNB%06d",size);
         return accountnNumber;
     }
 }
