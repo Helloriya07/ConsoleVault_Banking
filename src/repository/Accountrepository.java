@@ -1,6 +1,7 @@
 package repository;
 
 import domain.Account;
+import domain.Customer;
 /*
 created an repo of users account
 saving the data in repo
@@ -26,4 +27,14 @@ public class Accountrepository {
     public Optional<Account> findByNumber(String accountNumber) {
         return Optional.ofNullable(accountsByNumber.get(accountNumber));
     }
+
+    public List<Account> findByCustomerId(String customerId) {
+
+        List<Account> result = new ArrayList<>();
+        for(Account a: accountsByNumber.values()){
+            if(a.getCustomerId().equals(customerId))
+                result.add(a);
+    }
+        return result;
+}
 }

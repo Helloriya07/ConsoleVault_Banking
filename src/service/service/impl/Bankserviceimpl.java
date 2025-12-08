@@ -1,13 +1,16 @@
 package service.service.impl;
 
 import domain.Account;
+import domain.Customer;
 import domain.Transcation;
 import domain.Type;
 import repository.Accountrepository;
+import repository.CustomerRepository;
 import repository.TransactionRepository;
 import service.BankService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +29,9 @@ public class Bankserviceimpl implements BankService {
     private final Accountrepository accountRepository= new Accountrepository();
     // creating object of accountrepostory to call
     private final TransactionRepository transactionRepository= new TransactionRepository();
+    // creating object of customerRepo to call
+    private final CustomerRepository customerRepository= new  CustomerRepository();
+
     @Override
     public String openAccount(String name, String email, String accountType) {
         String customerid = UUID.randomUUID().toString();
@@ -107,6 +113,25 @@ public class Bankserviceimpl implements BankService {
         //maitaining the transaction of toAcc in repo
         transactionRepository.add(new Transcation(to.getAccountNumber(),
                 amount,UUID.randomUUID().toString(),note, LocalDateTime.now(), Type.TRANSFER_IN));
+    }
+
+    @Override
+    public List<Transcation> getStatement(String account) {
+        return transactionRepository.findByAccount(account).stream()
+                .sorted(Comparator.comparing(Transcation::getTimestamp))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Account> searchAccountsByCustomerName(String query) {
+        String q = (query==null)?"":query.toLowerCase();
+        List<Account> result = new ArrayList<>();
+        for(Customer c: customerRepository.findAll()){
+            if(c.getName().toLowerCase().contains(q))
+                result.addAll(accountRepository.findByCustomerId(c.getId()));
+        }
+        result.sort(Comparator.comparing(Account::getAccountNumber));
+        return result;
     }
 
 
