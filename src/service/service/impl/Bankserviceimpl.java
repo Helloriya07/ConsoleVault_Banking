@@ -1,9 +1,13 @@
 package service.service.impl;
 
 import domain.Account;
+import domain.Transcation;
+import domain.Type;
 import repository.Accountrepository;
+import repository.TransactionRepository;
 import service.BankService;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +24,8 @@ public class Bankserviceimpl implements BankService {
 
     // creating object of accountrepository  to call
     private final Accountrepository accountRepository= new Accountrepository();
+    // creating object of accountrepostory to call
+    private final TransactionRepository transactionRepository= new TransactionRepository();
     @Override
     public String openAccount(String name, String email, String accountType) {
         String customerid = UUID.randomUUID().toString();
@@ -49,6 +55,17 @@ public class Bankserviceimpl implements BankService {
                  //collecting the listofaccounts in list.
     }
 
+    @Override
+    public void deposit(String accountNumber, Double amount, String note) {
+        Account account = accountRepository.findByNumber(accountNumber)
+                .orElseThrow(()->new RuntimeException("Account not found"+accountNumber));
+                 account.setBalance(account.getBalance() + amount);
+        Transcation transcation = new Transcation(account.getAccountNumber(),
+               amount,UUID.randomUUID().toString(),note, LocalDateTime.now(), Type.DEPOSIT);
+        transactionRepository.add(transcation);
+
+
+    }
 
 
     // method to generate account numbers of customers
