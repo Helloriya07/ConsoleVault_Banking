@@ -75,12 +75,38 @@ public class Bankserviceimpl implements BankService {
         //check if enough amount is present in bank account.
         if(account.getBalance().compareTo(amount)<0)
             throw new RuntimeException("Insufficient Balance");
-        //
+
         account.setBalance(account.getBalance() - amount); // reducing withdrwan amount from account.
         Transcation transcation = new Transcation(account.getAccountNumber(),
                 amount,UUID.randomUUID().toString(),note, LocalDateTime.now(), Type.WITHDRAW);
         transactionRepository.add(transcation);
 
+    }
+
+    @Override
+    public void transfer(String fromAcc, String toAcc, Double amount, String note) {
+        if(fromAcc.equals(toAcc))
+            throw new RuntimeException("Cannot transfer to your own account");
+
+        // fetching from and to accounts
+        Account from = accountRepository.findByNumber(fromAcc)
+                .orElseThrow(()->new RuntimeException("Account not found " +fromAcc));
+        Account to = accountRepository.findByNumber(toAcc)
+                .orElseThrow(()->new RuntimeException("Account not found " +toAcc));
+
+        //check if enough amount is present in fromAcc bank account.
+        if(from.getBalance().compareTo(amount)<0)
+            throw new RuntimeException("Insufficient Balance");
+        from.setBalance(from.getBalance() - amount); // reducing withdrwan amount from account .
+        to.setBalance(to.getBalance() + amount); // adding withdrwan amount to account .
+
+        //maitaining the transaction of fromAcc in repo
+        transactionRepository.add(new Transcation(from.getAccountNumber(),
+                amount,UUID.randomUUID().toString(),note, LocalDateTime.now(), Type.TRANSFER_OUT));
+
+        //maitaining the transaction of toAcc in repo
+        transactionRepository.add(new Transcation(to.getAccountNumber(),
+                amount,UUID.randomUUID().toString(),note, LocalDateTime.now(), Type.TRANSFER_IN));
     }
 
 
