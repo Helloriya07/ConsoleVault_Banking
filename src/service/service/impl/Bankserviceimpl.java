@@ -57,13 +57,29 @@ public class Bankserviceimpl implements BankService {
 
     @Override
     public void deposit(String accountNumber, Double amount, String note) {
-        Account account = accountRepository.findByNumber(accountNumber)
+        Account account = accountRepository.findByNumber(accountNumber) // finding the account
                 .orElseThrow(()->new RuntimeException("Account not found"+accountNumber));
-                 account.setBalance(account.getBalance() + amount);
+
+                 account.setBalance(account.getBalance() + amount); // adding deposited new amount to the account
         Transcation transcation = new Transcation(account.getAccountNumber(),
                amount,UUID.randomUUID().toString(),note, LocalDateTime.now(), Type.DEPOSIT);
-        transactionRepository.add(transcation);
+        transactionRepository.add(transcation); // transaction detaiil
 
+
+    }
+
+    @Override
+    public void withdraw(String accountNumber, Double amount, String note) {
+        Account account = accountRepository.findByNumber(accountNumber)
+                .orElseThrow(()->new RuntimeException("Account not found"+accountNumber));
+        //check if enough amount is present in bank account.
+        if(account.getBalance().compareTo(amount)<0)
+            throw new RuntimeException("Insufficient Balance");
+        //
+        account.setBalance(account.getBalance() - amount); // reducing withdrwan amount from account.
+        Transcation transcation = new Transcation(account.getAccountNumber(),
+                amount,UUID.randomUUID().toString(),note, LocalDateTime.now(), Type.WITHDRAW);
+        transactionRepository.add(transcation);
 
     }
 
