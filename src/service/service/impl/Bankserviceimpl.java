@@ -14,7 +14,6 @@ import service.BankService;
 import util.Validation;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -201,7 +200,8 @@ public List<Account> searchAccountsByCustomerName(String query) {
     // method to generate account numbers of customers
     private String getAccountnNumber() {
         int size = accountRepository.findAll().size()+1;
-        String accountnNumber = String.format("PUNB%06d",size);
-        return accountnNumber;
+//        String accountnNumber = String.format("PUNB%06d",size);
+//        return accountnNumber;
+        return String.format("PUNB%06d",size);
     }
 }
