@@ -10,6 +10,8 @@ public class Main {
         System.out.println("Welcome to ConsoleVault Banking");
         BankService bankService = new Bankserviceimpl(); // object of bank service me assign krege bankserviceimp ka object.
         boolean running =true;
+        Scanner sc = new Scanner(System.in);
+
         while (running) {
             System.out.println("""
                     1) Open Account
@@ -22,7 +24,6 @@ public class Main {
                     0) Exit 
                     
                     """);
-            Scanner sc = new Scanner(System.in);
             System.out.println("CHOOSE");
             String choice = sc.nextLine().trim();
             System.out.println("CHOICE  " + choice);
@@ -35,7 +36,7 @@ public class Main {
                 case "5" -> statement(sc,bankService);
                 case "6" -> listAccount(sc, bankService);
                 case "7" -> searchAccount(sc,bankService);
-                case "0 " -> running = false;
+                case "0" -> running = false;
 
             }
 
@@ -107,6 +108,11 @@ public class Main {
     private static void searchAccount(Scanner sc,BankService bankService) {
         System.out.println("Customer name contains:");
         String query = sc.nextLine().trim();
-        bankService.searchAccountsByCustomerName(query);
+        bankService.searchAccountsByCustomerName(query).forEach(account ->
+                System.out.println(account.getAccountNumber() + " | " + account.getAccountType() + " | " + account.getBalance())
+        );
+
+        }
+
     }
-}
+

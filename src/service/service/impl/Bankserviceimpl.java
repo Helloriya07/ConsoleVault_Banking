@@ -36,6 +36,11 @@ public class Bankserviceimpl implements BankService {
     public String openAccount(String name, String email, String accountType) {
         String customerid = UUID.randomUUID().toString();
 
+        //create customer
+        Customer c = new Customer(customerid,name,email);
+        customerRepository.save(c);
+
+
         //change later to : acc11 when we have list of account
 //        String accountnNumber = UUID.randomUUID().toString();
 
@@ -124,16 +129,47 @@ public class Bankserviceimpl implements BankService {
 
     @Override
     public List<Account> searchAccountsByCustomerName(String query) {
-        String q = (query==null)?"":query.toLowerCase();
-        List<Account> result = new ArrayList<>();
-        for(Customer c: customerRepository.findAll()){
-            if(c.getName().toLowerCase().contains(q))
-                result.addAll(accountRepository.findByCustomerId(c.getId()));
-        }
-        result.sort(Comparator.comparing(Account::getAccountNumber));
-        return result;
+        String q = (query==null) ? "" : query.toLowerCase();
+//        List<Account> result = new ArrayList<>();
+//        for(Customer c: customerRepository.findAll()){
+//            if(c.getName().toLowerCase().contains(q))
+//                result.addAll(accountRepository.findByCustomerId(c.getId()));
+//        }
+//        result.sort(Comparator.comparing(Account::getAccountNumber));
+//        return result;
+
+        //same logic using streams
+        return customerRepository.findAll().stream()
+                .filter(c -> c.getName().toLowerCase().contains(q))
+                .flatMap(c -> accountRepository.findByCustomerId(c.getId()).stream())
+                .sorted(Comparator.comparing(Account::getAccountNumber))
+                .collect(Collectors.toList());
     }
 
+    /* Debugged the search to fix the bug
+
+@Override
+public List<Account> searchAccountsByCustomerName(String query) {
+    String q = (query == null) ? "" : query.trim().toLowerCase();
+
+    System.out.println("DEBUG: searchAccountsByCustomerName called with raw query='" + query + "' normalized q='" + q + "'");
+
+    List<Account> result = customerRepository.findAll().stream()
+            .peek(c -> System.out.println("DEBUG: customer name='" + c.getName() + "'"))
+            .filter(c -> {
+                String name = (c.getName() == null) ? "" : c.getName().toLowerCase();
+                boolean matches = !q.isEmpty() && name.contains(q);   // change to startsWith(q) if you want "starts with"
+                System.out.println("DEBUG: -> does '" + name + "' contain '" + q + "' ? " + matches);
+                return matches;
+            })
+            .flatMap(c -> accountRepository.findByCustomerId(c.getId()).stream())
+            .sorted(Comparator.comparing(Account::getAccountNumber))
+            .collect(Collectors.toList());
+
+    System.out.println("DEBUG: search result size = " + result.size());
+    return result;
+}
+*/
 
     // method to generate account numbers of customers
     private String getAccountnNumber() {
