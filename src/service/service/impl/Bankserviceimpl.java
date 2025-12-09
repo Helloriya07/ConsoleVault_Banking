@@ -4,6 +4,9 @@ import domain.Account;
 import domain.Customer;
 import domain.Transcation;
 import domain.Type;
+import exception.AccountNotFoundException;
+import exception.InsufficientFundException;
+import exception.ValidationException;
 import repository.Accountrepository;
 import repository.CustomerRepository;
 import repository.TransactionRepository;
@@ -69,7 +72,7 @@ public class Bankserviceimpl implements BankService {
     @Override
     public void deposit(String accountNumber, Double amount, String note) {
         Account account = accountRepository.findByNumber(accountNumber) // finding the account
-                .orElseThrow(()->new RuntimeException("Account not found"+accountNumber));
+                .orElseThrow(()->new AccountNotFoundException("Account not found"+accountNumber));
 
                  account.setBalance(account.getBalance() + amount); // adding deposited new amount to the account
         Transcation transcation = new Transcation(account.getAccountNumber(),
@@ -82,10 +85,10 @@ public class Bankserviceimpl implements BankService {
     @Override
     public void withdraw(String accountNumber, Double amount, String note) {
         Account account = accountRepository.findByNumber(accountNumber)
-                .orElseThrow(()->new RuntimeException("Account not found"+accountNumber));
+                .orElseThrow(()->new AccountNotFoundException("Account not found"+accountNumber));
         //check if enough amount is present in bank account.
         if(account.getBalance().compareTo(amount)<0)
-            throw new RuntimeException("Insufficient Balance");
+            throw new InsufficientFundException("Insufficient Balance");
 
         account.setBalance(account.getBalance() - amount); // reducing withdrwan amount from account.
         Transcation transcation = new Transcation(account.getAccountNumber(),
@@ -97,17 +100,17 @@ public class Bankserviceimpl implements BankService {
     @Override
     public void transfer(String fromAcc, String toAcc, Double amount, String note) {
         if(fromAcc.equals(toAcc))
-            throw new RuntimeException("Cannot transfer to your own account");
+            throw new ValidationException("Cannot transfer to your own account");
 
         // fetching from and to accounts
         Account from = accountRepository.findByNumber(fromAcc)
-                .orElseThrow(()->new RuntimeException("Account not found " +fromAcc));
+                .orElseThrow(()->new AccountNotFoundException("Account not found " +fromAcc));
         Account to = accountRepository.findByNumber(toAcc)
-                .orElseThrow(()->new RuntimeException("Account not found " +toAcc));
+                .orElseThrow(()->new AccountNotFoundException("Account not found " +toAcc));
 
         //check if enough amount is present in fromAcc bank account.
         if(from.getBalance().compareTo(amount)<0)
-            throw new RuntimeException("Insufficient Balance");
+            throw new InsufficientFundException("Insufficient Balance");
         from.setBalance(from.getBalance() - amount); // reducing withdrwan amount from account .
         to.setBalance(to.getBalance() + amount); // adding withdrwan amount to account .
 
